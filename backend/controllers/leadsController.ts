@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
-// import { getCurrentData } from "../functions/getCurrentData";
-import { gCD } from "../functions/gCD";
+import { getCurrentData } from "../functions/getCurrentData";
+
 dotenv.config();
 
 const API_BASE_URL = `https://${process.env.SUBDOMAIN}.amocrm.ru`;
@@ -78,8 +78,8 @@ class LeadsController {
       });
 
       //форматируем полученные данные для отрисовки в таблице
-      // const data = getCurrentData(leads, statuses, users, contacts);
-      const data = gCD(leads, statuses, users, contacts);
+      const data = getCurrentData(leads, statuses, users, contacts);
+
       //отправляем количество всех записей для пагинации
       const totalRows = this.totalRows;
       return res.status(200).json({ results: data, totalRows: totalRows });

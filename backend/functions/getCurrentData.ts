@@ -10,55 +10,90 @@ interface Data {
   contact_phone: string;
   contact_email: string;
 }
+
+// Предполагая, что интерфейсы для этих сущностей определены
+interface Lead {
+  /* ... */
+}
+interface Status {
+  /* ... */
+}
+interface User {
+  /* ... */
+}
+// interface Contact {
+//   /* ... */
+// }
+interface FieldValue {
+  value: string;
+  enum_id: number;
+  enum_code: string;
+}
+
+interface CustomField {
+  field_id: number;
+  field_name: string;
+  field_code: string;
+  field_type: string;
+  values: FieldValue[];
+}
 export function getCurrentData(
   leads: any[],
   statuses: any[],
   users: any[],
   contacts: any[]
 ): Data[] {
-  const res = leads.map((l: any) => {
-    const contactDataIsAvailable = l._embedded.contacts.length ? true : false;
-    let contact_name = "";
+  console.log(users);
+  console.log(contacts);
+  console.log(statuses);
+  console.log(leads);
+  // Предварительно создаем кэш для статусов и пользователей
+  const statusMap = new Map(statuses.map((s) => [s.id, s]));
+  const userMap = new Map(users.map((u) => [u.id, u]));
+  const contactMap = new Map(contacts.map((c) => [c.id, c]));
+
+  return leads.map((lead) => {
+    const { contacts: leadContacts } = lead._embedded;
+    const contactData = leadContacts.length
+      ? contactMap.get(leadContacts[0].id)
+      : null;
+
+    let contact_name = contactData?.name ?? "";
     let contact_phone = "";
     let contact_email = "";
-    if (contactDataIsAvailable) {
-      const contactData = contacts.find(
-        (c) => c.id === l._embedded.contacts[0].id
-      );
-      contact_name = contactData.name ? contactData.name : "";
 
-      if (contactData.custom_fields_values) {
-        const contactPhoneField = contactData.custom_fields_values.find(
-          (v: any) => v.field_code === "PHONE"
-        );
-        if (contactPhoneField) {
-          contact_phone = contactPhoneField.values[0].value;
-        }
-        const contactEmailField = contactData.custom_fields_values.find(
-          (v: any) => v.field_code === "EMAIL"
-        );
-        if (contactEmailField) {
-          contact_email = contactEmailField.values[0].value;
-        }
-      }
+    if (contactData?.custom_fields_values) {
+      contact_phone = getField(contactData, "PHONE");
+      contact_email = getField(contactData, "EMAIL");
     }
 
+    const status = statusMap.get(lead.status_id);
+    const user = userMap.get(lead.responsible_user_id);
+
     return {
-      id: l.id,
-      name: l.name,
-      price: l.price,
-      status_name: statuses.find((s: any) => s.id === l.status_id)?.name,
-      status_color: statuses.find((s: any) => s.id === l.status_id)?.color,
-      user: users.find((u: any) => u.id === l.responsible_user_id)?.name,
-      created_at: formatData(l.created_at),
+      id: lead.id,
+      name: lead.name,
+      price: lead.price,
+      status_name: status?.name,
+      status_color: status?.color,
+      user: user?.name,
+      created_at: formatDate(lead.created_at),
       contact_name,
       contact_phone,
       contact_email,
     };
   });
-  return res;
 }
-function formatData(t: number) {
+
+function getField(contactData: any, fieldCode: string): string {
+  const field = contactData.custom_fields_values.find(
+    (v: CustomField) => v.field_code === fieldCode
+  );
+  console.log(contactData.custom_fields_values[0]);
+  return field?.values[0].value ?? "";
+}
+
+function formatDate(t: number): string {
   const date = new Date(t * 1000);
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -70,3 +105,6 @@ function formatData(t: number) {
 
   return date.toLocaleDateString("ru-RU", options);
 }
+
+// Этот код предполагает, что интерфейсы для Lead, Status, User и Contact определены в месте,
+// где это необходимо, и что они соответствуют структуре данных, с которой работает функция.
