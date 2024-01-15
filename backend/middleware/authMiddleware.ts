@@ -2,22 +2,22 @@ import { Request, Response, NextFunction } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
-// import { setAccessToken, getAccessToken } from "../functions/tokenCache";
 
-// const access_token = getAccessToken();
 let access_token = "";
 export default async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  //const access_token = process.env.ACCESS_TOKEN
   if (access_token) {
     req.myAccessToken = access_token;
     return next();
   }
   try {
     const subdomain = process.env.SUBDOMAIN;
+    if(!subdomain){
+    return res.status(401).json({ message: "Субдомен не задан в переменных окружения" });
+    }
     const link = `https://${subdomain}.amocrm.ru/oauth2/access_token`;
     const data = {
       client_id: process.env.CLIENT_ID,
@@ -26,23 +26,19 @@ export default async function authMiddleware(
       code: process.env.CODE,
       redirect_uri: process.env.REDIRECT_URL,
     };
-    console.log("Пытаюсь отправиь запрос");
-    try {
-      const response = await axios.post(link, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      //process.env.ACCESS_TOKEN = response.data.access_token
-      access_token = response.data.access_token;
-      // setAccessToken(response.data.access_token);
-      req.myAccessToken = access_token;
-      console.log(`Авторизация прошла успешно`);
-    } catch (err) {
-      console.error(err?.response?.data?.hint);
-      return res.status(500).send(`Ошибка: ${err?.message}`);
-    }
-    return next();
+
+
+const response = await axios.post(link, data);
+if (response.status !== 200) {
+  return res
+    .status(401)
+    .json({ message: "Ошибка получения токена доступа" });
+}
+access_token = response.data.access_token;
+req.myAccessToken = access_token;
+console.log(`Авторизация прошла успешно`);
+
+return next();
   } catch (e) {
     return res.status(401).json({ message: "Не авторизован" });
   }
