@@ -46,7 +46,7 @@ class LeadsController {
     const leadsUrl = API_BASE_URL + "/api/v4/leads";
     try {
       //получаем токен для запросов
-      const token = req.myAccessToken;
+      const token = global.access_token;
       if (!token) {
         return res.status(422).json({ message: "Некорректный токен" });
       }
@@ -101,7 +101,6 @@ class LeadsController {
       console.log(totalRows);
       return res.status(200).json({ results: data, totalRows: totalRows });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ message: error.message });
     }
   };
