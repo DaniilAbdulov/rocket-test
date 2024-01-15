@@ -16,8 +16,24 @@ class LeadsController {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
-      if (!this.totalRows) {
-        this.totalRows = response.data._total_items;
+      if (url.endsWith("/api/v4/leads")) {
+        // Получение заголовка X-Total-Count
+        const totalCountHeader = response.headers["x-total-count"];
+        if (totalCountHeader) {
+          console.log(`X-Total-Count: ${totalCountHeader}`);
+        } else {
+          console.log("X-Total-Count header is missing");
+        }
+
+        if (!this.totalRows) {
+          this.totalRows =
+            parseInt(totalCountHeader, 10) ||
+            response.request.socket._eventsCount;
+        }
+        /*API amoCRM не предоставляет информации об общем количесвте сделок. Ссылка на
+        ответ по этому поводу от Nikita bessudnov CTO (Past: Senior PHP, Teamlead and DevOps) at amoCRM
+        https://github.com/amocrm/amocrm-api-php/issues/209#issuecomment-759375512
+        */
       }
       return response.data._embedded;
     } catch (error) {
@@ -82,6 +98,7 @@ class LeadsController {
 
       //отправляем количество всех записей для пагинации
       const totalRows = this.totalRows;
+      console.log(totalRows);
       return res.status(200).json({ results: data, totalRows: totalRows });
     } catch (error) {
       console.log(error);

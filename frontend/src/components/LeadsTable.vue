@@ -164,35 +164,33 @@ export default {
       return axios.get(url);
     };
 
-    const onRequest = (props: RequestProps) => {
+    const onRequest = async (props: RequestProps) => {
       const { page, rowsPerPage } = props.pagination;
       const filterValue = props.filter;
 
       loading.value = true;
 
-      // Fetch data from "server"
-      fetchFromServer(page, rowsPerPage, filterValue)
-        .then((response) => {
-          // Type your response data appropriately
-          const results: Rows[] = response.data.results;
-          const totalRows: number = response.data.totalRows;
-          rows.value = results;
-          pagination.value.rowsNumber = totalRows; // Or use your API's actual value
+      try {
+        // Fetch data from "server"
+        const response = await fetchFromServer(page, rowsPerPage, filterValue);
 
-          // Update local pagination object
-          pagination.value.page = page;
-          pagination.value.rowsPerPage = rowsPerPage;
-        })
-        .catch((error: Error) => {
-          console.error('There was an error fetching the data: ', error);
-        })
-        .finally(() => {
-          loading.value = false;
-        });
+        // Type your response data appropriately
+        const results: Rows[] = response.data.results;
+        const totalRows: number = response.data.totalRows;
+        rows.value = results;
+        pagination.value.rowsNumber = totalRows; // Or use your API's actual value
+
+        // Update local pagination object
+        pagination.value.page = page;
+        pagination.value.rowsPerPage = rowsPerPage;
+      } catch (error) {
+        console.error('There was an error fetching the data: ', error);
+      } finally {
+        loading.value = false;
+      }
     };
 
     onMounted(() => {
-      // Replace with the real request
       onRequest({
         pagination: pagination.value,
         filter: filter.value,
