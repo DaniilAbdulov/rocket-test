@@ -25,7 +25,7 @@ export interface Contact {
   closest_task_at: null | number;
   is_deleted: boolean;
   is_unsorted: boolean;
-  custom_fields_values: null | CustomFieldsContact;
+  custom_fields_values: null | CustomFieldsContact[];
   account_id: number;
   _links: {
     self: {

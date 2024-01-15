@@ -1,4 +1,4 @@
-import {Lead,Status,User,Contact,CustomFieldsContact} from "../models";
+import { Lead, Status, User, Contact, CustomFieldsContact } from "../models";
 interface Data {
   id: number;
   name: string;
@@ -10,12 +10,6 @@ interface Data {
   contact_name: string;
   contact_phone: string;
   contact_email: string;
-}
-
-interface FieldValue {
-  value: string;
-  enum_id: number;
-  enum_code: string;
 }
 
 export function getCurrentData(
@@ -62,11 +56,10 @@ export function getCurrentData(
   });
 }
 
-function getField(contactData: any, fieldCode: string): string {
+function getField(contactData: Contact, fieldCode: string): string {
   const field = contactData.custom_fields_values.find(
     (v: CustomFieldsContact) => v.field_code === fieldCode
   );
-  console.log(contactData.custom_fields_values[0]);
   return field?.values[0].value ?? "";
 }
 
@@ -82,5 +75,3 @@ function formatDate(t: number): string {
 
   return date.toLocaleDateString("ru-RU", options);
 }
-
-
