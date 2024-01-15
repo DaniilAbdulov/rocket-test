@@ -5,13 +5,13 @@ dotenv.config();
 // import { setAccessToken, getAccessToken } from "../functions/tokenCache";
 
 // const access_token = getAccessToken();
-//let access_token = "";
+let access_token = "";
 export default async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const access_token = process.env.ACCESS_TOKEN
+  //const access_token = process.env.ACCESS_TOKEN
   if (access_token) {
     req.myAccessToken = access_token;
     return next();
@@ -33,10 +33,10 @@ export default async function authMiddleware(
           "Content-Type": "application/json",
         },
       });
-      process.env.ACCESS_TOKEN = response.data.access_token
-      //access_token = response.data.access_token;
+      //process.env.ACCESS_TOKEN = response.data.access_token
+      access_token = response.data.access_token;
       // setAccessToken(response.data.access_token);
-      req.myAccessToken = response.data.access_token;
+      req.myAccessToken = access_token;
       console.log(`Авторизация прошла успешно`);
     } catch (err) {
       console.error(err?.response?.data?.hint);
