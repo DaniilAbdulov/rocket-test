@@ -47,3 +47,53 @@ export default async function authMiddleware(
     return res.status(401).json({ message: "Не авторизован" });
   }
 }
+
+
+
+
+
+
+
+const express = require('express');
+const axios = require('axios');
+const redis = require('redis');
+const jwt = require('jsonwebtoken');
+
+const app = express();
+const client = redis.createClient();
+
+// Обработчик для получения и сохранения access токена
+app.get('/token', async (req, res) => {
+  try {
+    // Проверяем, есть ли сохраненный токен в Redis
+    client.get('access_token', async (err, token) => {
+      if (err) throw err;
+
+      if (token) {
+        // Если токен найден в Redis, используем его
+        res.json({ access_token: token });
+      } else {
+        // Если токен не найден, отправляем запрос на получение нового токена
+        const response = await axios.post('https://example.com/oauth/token', {
+          // Добавьте параметры аутентификации, если это необходимо
+        });
+
+        const accessToken = response.data.access_token;
+        
+        // Сохраняем токен в Redis для последующего использования
+        client.set('access_token', accessToken);
+
+        res.json({ access_token: accessToken });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Сервер запущен');
+});
+
+
