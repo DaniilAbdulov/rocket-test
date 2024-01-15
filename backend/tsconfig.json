@@ -1,10 +1,16 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "esnext",
+    // включить поддержку для синтаксиса ES модулей
     "outDir": "dist",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    // если вы хотите использовать .js расширения при импорте
+    "resolveJsonModule": true,
+    // если вы хотите импортировать JSON файлы
+    "experimentalDecorators": true // Если вы используете декораторы в TypeScript
   },
-  "include": ["src/**/*.ts", "db.ts", "index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
