@@ -1,3 +1,4 @@
+import {Lead,Status,User,Contact,CustomFieldsContact} from "../models";
 interface Data {
   id: number;
   name: string;
@@ -11,42 +12,18 @@ interface Data {
   contact_email: string;
 }
 
-// Предполагая, что интерфейсы для этих сущностей определены
-interface Lead {
-  /* ... */
-}
-interface Status {
-  /* ... */
-}
-interface User {
-  /* ... */
-}
-// interface Contact {
-//   /* ... */
-// }
 interface FieldValue {
   value: string;
   enum_id: number;
   enum_code: string;
 }
 
-interface CustomField {
-  field_id: number;
-  field_name: string;
-  field_code: string;
-  field_type: string;
-  values: FieldValue[];
-}
 export function getCurrentData(
-  leads: any[],
-  statuses: any[],
-  users: any[],
-  contacts: any[]
+  leads: Lead[],
+  statuses: Status[],
+  users: User[],
+  contacts: Contact[]
 ): Data[] {
-  console.log(users);
-  console.log(contacts);
-  console.log(statuses);
-  console.log(leads);
   // Предварительно создаем кэш для статусов и пользователей
   const statusMap = new Map(statuses.map((s) => [s.id, s]));
   const userMap = new Map(users.map((u) => [u.id, u]));
@@ -87,7 +64,7 @@ export function getCurrentData(
 
 function getField(contactData: any, fieldCode: string): string {
   const field = contactData.custom_fields_values.find(
-    (v: CustomField) => v.field_code === fieldCode
+    (v: CustomFieldsContact) => v.field_code === fieldCode
   );
   console.log(contactData.custom_fields_values[0]);
   return field?.values[0].value ?? "";
@@ -106,5 +83,4 @@ function formatDate(t: number): string {
   return date.toLocaleDateString("ru-RU", options);
 }
 
-// Этот код предполагает, что интерфейсы для Lead, Status, User и Contact определены в месте,
-// где это необходимо, и что они соответствуют структуре данных, с которой работает функция.
+
