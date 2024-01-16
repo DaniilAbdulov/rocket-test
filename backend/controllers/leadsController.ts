@@ -2,20 +2,21 @@ import { Request, Response } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
 import { getCurrentData } from "../functions/getCurrentData";
-
 dotenv.config();
 
-const API_BASE_URL = `https://${process.env.SUBDOMAIN}.amocrm.ru`;
+
 
 class LeadsController {
+  //начальное число сделок устанавливаем на ноль
   totalRows: number = 0;
-
+//функция getResponseBody помогает избежать повторения кода. Принимает только URL, токен и параметры для запроса
   private async getResponseBody(url: string, token: string, params?: any) {
     try {
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
+      //если отправляется запрос на получение сделок, то необходимо установить их ообщее кол-во для пагинации
       if (url.endsWith("/api/v4/leads")) {
         // Получение заголовка X-Total-Count
         const totalCountHeader = response.headers["x-total-count"];
@@ -24,17 +25,17 @@ class LeadsController {
         } else {
           console.log("X-Total-Count header is missing");
         }
-
+        /*API amoCRM не предоставляет информации об общем количесвте сделок. Ссылка на
+        ответ по этому поводу от Nikita bessudnov CTO (Past: Senior PHP, Teamlead and DevOps) at amoCRM
+        https://github.com/amocrm/amocrm-api-php/issues/209#issuecomment-759375512
+        */
         if (!this.totalRows) {
           this.totalRows =
             parseInt(totalCountHeader, 10) ||
             response.request.socket._eventsCount;
         }
-        /*API amoCRM не предоставляет информации об общем количесвте сделок. Ссылка на
-        ответ по этому поводу от Nikita bessudnov CTO (Past: Senior PHP, Teamlead and DevOps) at amoCRM
-        https://github.com/amocrm/amocrm-api-php/issues/209#issuecomment-759375512
-        */
       }
+      //возвращаем полученные данные начиная с объекта ._embedded
       return response.data._embedded;
     } catch (error) {
       console.error("Error making API request", error);
@@ -43,14 +44,18 @@ class LeadsController {
   }
 
   public getData = async (req: Request, res: Response) => {
-    const leadsUrl = API_BASE_URL + "/api/v4/leads";
     try {
+      //базовый URL для всех дальнейших запросов
+      const API_BASE_URL = `https://${process.env.SUBDOMAIN}.amocrm.ru`;
+     
       //получаем токен для запросов
       const token = global.access_token;
       if (!token) {
         return res.status(422).json({ message: "Некорректный токен" });
       }
-      //данные для запроса с определлными условиями
+            
+      //получаем список сделок с определенными параметрами
+      //данные для запроса с определенными условиями
       const page = parseInt(req.query._page);
       const limit = parseInt(req.query._limit);
       const query = req.query.q;
@@ -59,7 +64,7 @@ class LeadsController {
           .status(422)
           .json({ message: "Некорректные данные пагинации" });
       }
-      //получаем список сделок с определенными параметрами
+      const leadsUrl = API_BASE_URL + "/api/v4/leads";
       const { leads } = await this.getResponseBody(leadsUrl, token, {
         with: "contacts",
         page,
@@ -67,8 +72,8 @@ class LeadsController {
         query,
       });
 
+      // возвращаем пустые массивы, если таковые получили
       if (!leads || leads.length === 0) {
-        // Returning an empty array for no leads (HTTP 200)
         return res.status(200).json({ results: [], totalRows: 0 });
       }
 
@@ -78,7 +83,7 @@ class LeadsController {
         return res.status(422).json({ message: "Некорректный id воронки" });
       }
 
-      //получаем список статусов сделок
+      //получаем список статусов сделок нашей воронки
       const statusesUrl =
         API_BASE_URL + `/api/v4/leads/pipelines/${pipelineId}/statuses`;
       const { statuses } = await this.getResponseBody(statusesUrl, token);
@@ -98,7 +103,7 @@ class LeadsController {
 
       //отправляем количество всех записей для пагинации
       const totalRows = this.totalRows;
-      console.log(totalRows);
+      //отправляем отформатированный объект с данными и кол-во всех записей на клиента
       return res.status(200).json({ results: data, totalRows: totalRows });
     } catch (error) {
       return res.status(500).json({ message: error.message });
