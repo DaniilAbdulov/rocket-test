@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-xl">
     <q-table
       flat
       bordered
@@ -31,7 +31,7 @@
           <q-td auto-width>
             <q-btn
               size="sm"
-              color="accent"
+              color="dark"
               round
               dense
               @click="props.expand = !props.expand"
