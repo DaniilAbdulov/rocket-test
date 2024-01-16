@@ -1,8 +1,8 @@
 {
-  "name": "my-package",
+  "name": "rocket-test",
   "version": "0.0.1",
-  "description": "rocket-test",
-  "productName": "test",
+  "description": "this is client part of test task from rocket comapny",
+  "productName": "rocket-test",
   "author": "Daniil Abdulov <abdulov.dany@yandex.ru>",
   "private": true,
   "scripts": {
