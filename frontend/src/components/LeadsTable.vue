@@ -103,17 +103,19 @@ import axios from 'axios';
 import { Column, Pagination, RequestProps, Rows } from './models';
 
 export default {
+  //методы, срабатывающие при нажатии на кнопки вызова и почты
   methods: {
     makePhoneCall(phoneNumber: string) {
-      window.location.href = `tel:${phoneNumber}`;
+      window.__cpLocation.href = `tel:${phoneNumber}`;
     },
     sendEmail(email: string) {
-      window.location.href = `mailto:${email}`;
+      window.__cpLocation.href = `mailto:${email}`;
     },
   },
   setup() {
     const tableRef: Ref<unknown> = ref();
     const rows: Ref<Rows[]> = ref([]);
+    //колонки таблицы
     const columns: Ref<Column[]> = ref([
       {
         name: 'name',
@@ -136,60 +138,64 @@ export default {
         align: 'left',
       },
     ]);
+    //строка поиска. по-умолчанию пустая строка
     const filter: Ref<string> = ref('');
+    //переменная, отвечающая за отображание лоудера
     const loading: Ref<boolean> = ref(false);
+    //данные для запроса на сервер с определленным лимитом
     const pagination: Ref<Pagination> = ref({
       descending: false,
       page: 1,
       rowsPerPage: 5,
       rowsNumber: 10,
     });
-
+    //функция запроса данных с сервера
     const fetchFromServer = (
       page: number,
       rowsPerPage: number,
       filter: string
     ) => {
-      // Prepare query parameters
+      // параметры запроса(номер страницы, кол-во записей и поисковый запрос)
       const params = new URLSearchParams({
         _page: String(page),
         _limit: String(rowsPerPage),
         q: filter,
       });
 
-      // Modify the URL according to your endpoint
+      // запрос на соответсвующий эндпоинт в backend
       const url = `http://localhost:3030/api/leads?${params.toString()}`;
-
-      // Return the Axios promise
       return axios.get(url);
     };
-
+    //функция @request="onRequest" предоставляемая компонентом таблицы quasar q-table
     const onRequest = async (props: RequestProps) => {
+      //считываем данные для запроса
       const { page, rowsPerPage } = props.pagination;
       const filterValue = props.filter;
-
+      //активиурем лоудер
       loading.value = true;
 
       try {
-        // Fetch data from "server"
+        // вызываем функцию fetchFromServer с заданными параметрами
         const response = await fetchFromServer(page, rowsPerPage, filterValue);
 
-        // Type your response data appropriately
+        // устанавливаем новые значения строк
         const results: Rows[] = response.data.results;
-        const totalRows: number = response.data.totalRows;
         rows.value = results;
-        pagination.value.rowsNumber = totalRows; // Or use your API's actual value
+        // устанавливаем кол-во всех сделок
+        const totalRows: number = response.data.totalRows;
+        pagination.value.rowsNumber = totalRows; 
 
-        // Update local pagination object
+        // обновляем объект пагинации в строке 146
         pagination.value.page = page;
         pagination.value.rowsPerPage = rowsPerPage;
       } catch (error) {
         console.error('There was an error fetching the data: ', error);
       } finally {
+        //независимо от ответа сервера отключаем лоудер
         loading.value = false;
       }
     };
-
+    //вызываем функцию при монтировании компонента с дефолтными значениями
     onMounted(() => {
       onRequest({
         pagination: pagination.value,
