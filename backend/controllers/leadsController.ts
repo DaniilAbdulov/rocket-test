@@ -4,12 +4,10 @@ import dotenv from "dotenv";
 import { getCurrentData } from "../functions/getCurrentData";
 dotenv.config();
 
-
-
 class LeadsController {
   //начальное число сделок устанавливаем на ноль
   totalRows: number = 0;
-//функция getResponseBody помогает избежать повторения кода. Принимает только URL, токен и параметры для запроса
+  //функция getResponseBody помогает избежать повторения кода. Принимает только URL, токен и параметры для запроса
   private async getResponseBody(url: string, token: string, params?: any) {
     try {
       const response = await axios.get(url, {
@@ -47,13 +45,13 @@ class LeadsController {
     try {
       //базовый URL для всех дальнейших запросов
       const API_BASE_URL = `https://${process.env.SUBDOMAIN}.amocrm.ru`;
-     
+
       //получаем токен для запросов
       const token = global.access_token;
       if (!token) {
         return res.status(422).json({ message: "Некорректный токен" });
       }
-            
+
       //получаем список сделок с определенными параметрами
       //данные для запроса с определенными условиями
       const page = parseInt(req.query._page);

@@ -24,23 +24,27 @@ export function getCurrentData(
   const contactMap = new Map(contacts.map((c) => [c.id, c]));
 
   return leads.map((lead) => {
+    //получаем вложенный объект с id привязанного контака и тут же получаем поля из
+    //соответсвующего объекта в contactMap
     const { contacts: leadContacts } = lead._embedded;
     const contactData = leadContacts.length
       ? contactMap.get(leadContacts[0].id)
       : null;
-
+    //устанавливаем поля name,phone,email
     let contact_name = contactData?.name ?? "";
     let contact_phone = "";
     let contact_email = "";
-
+    //если у объекта contactData есть ключ custom_fields_values
+    //пытаемся получить значения телефона и почты с помощью функции getField()
     if (contactData?.custom_fields_values) {
       contact_phone = getField(contactData, "PHONE");
       contact_email = getField(contactData, "EMAIL");
     }
-
+    //получаем поля объекта status по id статуса сделки
     const status = statusMap.get(lead.status_id);
+    //получаем поля объекта user по id ответсвенного за сделку пользователя
     const user = userMap.get(lead.responsible_user_id);
-
+    //возвращаем объект для отрисовки в таблице
     return {
       id: lead.id,
       name: lead.name,
@@ -72,6 +76,6 @@ function formatDate(t: number): string {
     hour: "2-digit",
     minute: "2-digit",
   };
-
+  //форматируем таймстамп в читаемые dd/mm/yyyy hh:mm
   return date.toLocaleDateString("ru-RU", options);
 }

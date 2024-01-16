@@ -3,40 +3,35 @@ module.exports = configure(function (/* ctx */) {
   return {
     eslint: {
       warnings: true,
-      errors: true
+      errors: true,
     },
-    boot: [
-        'axios',
-    ],
-    css: [
-      'app.scss'
-    ],
-    extras: [
-      'roboto-font',
-      'material-icons', 
-    ],
+    // boot: [
+    //     'axios',
+    // ],
+    css: ['app.scss'],
+    extras: ['roboto-font', 'material-icons'],
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       target: {
-        browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
-        node: 'node16'
+        browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
+        node: 'node16',
       },
       vueRouterMode: 'hash', // available values: 'hash', 'history'
     },
     devServer: {
-      open: true 
+      open: true,
     },
     framework: {
       config: {},
-      plugins: []
+      plugins: [],
     },
     animations: [],
     ssr: {
       pwa: false,
-      prodPort: 3000, 
+      prodPort: 3000,
       middlewares: [
-        'render' // keep this as last one
-      ]
+        'render', // keep this as last one
+      ],
     },
     pwa: {
       workboxMode: 'generateSW', // or 'injectManifest'
@@ -49,21 +44,18 @@ module.exports = configure(function (/* ctx */) {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
     },
     capacitor: {
-      hideSplashscreen: true
+      hideSplashscreen: true,
     },
     electron: {
       inspectPort: 5858,
       bundler: 'packager', // 'packager' or 'builder'
-      packager: {
-      },
+      packager: {},
       builder: {
-        appId: 'my-package'
-      }
+        appId: 'my-package',
+      },
     },
     bex: {
-      contentScripts: [
-        'my-content-script'
-      ],
-    }
-  }
+      contentScripts: ['my-content-script'],
+    },
+  };
 });

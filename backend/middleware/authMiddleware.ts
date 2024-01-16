@@ -17,7 +17,7 @@ export default async function authMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  //проверяем, установили ли мы токен доступа. 
+  //проверяем, установили ли мы токен доступа.
   if (global.access_token) {
     //Если установлен, то middleware переходит на leadsController
     return next();
@@ -55,34 +55,3 @@ export default async function authMiddleware(
     return res.status(401).json({ message: "Не авторизован" });
   }
 }
-
-
-
-/*
-export async function refreshAccessToken() {
-  try {
-    const link = `https://${process.env.SUBDOMAIN}.amocrm.ru/oauth2/access_token`;
-    const data = {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      grant_type: "refresh_token",
-      refresh_token: global.refresh_token,
-    };
-    const response = await axios.post(link, data);
-    if (response.status !== 200) {
-      throw new Error("Ошибка обновления токена доступа");
-    }
-    global.access_token = response.data.access_token;
-    global.access_toke_lifetime = response.data.expires_in;
-  } catch (e) {
-    throw new Error("Ошибка обновления токена доступа");
-  }
-}
-
-Теперь в authMiddleware перед вызовом return next(); добавьте проверку на время жизни токена и вызов функции refreshAccessToken():
-
- 
-if (global.access_toke_lifetime && Date.now() >= global.access_toke_lifetime * 1000) {
-  await refreshAccessToken();
-}
-*/

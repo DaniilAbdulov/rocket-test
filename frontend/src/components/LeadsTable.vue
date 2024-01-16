@@ -87,6 +87,10 @@
           debounce="300"
           v-model="filter"
           placeholder="Поиск"
+          :rules="[
+            (val) =>
+              val.length >= 3 || 'Запрос должен содержать минимум 3 символа',
+          ]"
         >
           <template v-slot:append>
             <q-icon name="search" />
@@ -106,10 +110,10 @@ export default {
   //методы, срабатывающие при нажатии на кнопки вызова и почты
   methods: {
     makePhoneCall(phoneNumber: string) {
-      window.__cpLocation.href = `tel:${phoneNumber}`;
+      window.location.href = `tel:${phoneNumber}`;
     },
     sendEmail(email: string) {
-      window.__cpLocation.href = `mailto:${email}`;
+      window.location.href = `mailto:${email}`;
     },
   },
   setup() {
@@ -171,6 +175,14 @@ export default {
       //считываем данные для запроса
       const { page, rowsPerPage } = props.pagination;
       const filterValue = props.filter;
+
+      /*текст из ТЗ к тестовому:
+      но при наличии GET-параметра query (от трёх символов)
+      отдача должна производиться
+      с учётом фильтрации*/
+      if (filterValue.length !== 0 && filterValue.length < 3) {
+        return;
+      }
       //активиурем лоудер
       loading.value = true;
 
@@ -183,7 +195,7 @@ export default {
         rows.value = results;
         // устанавливаем кол-во всех сделок
         const totalRows: number = response.data.totalRows;
-        pagination.value.rowsNumber = totalRows; 
+        pagination.value.rowsNumber = totalRows;
 
         // обновляем объект пагинации в строке 146
         pagination.value.page = page;
