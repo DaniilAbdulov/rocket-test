@@ -1,7 +1,8 @@
 {
-  "name": "backend",
+  "name": "rocket-test",
+  "description": "this is server part of test task from rocket comapny",
+  "author": "Daniil Abdulov <abdulov.dany@yandex.ru>",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +12,6 @@
     "type": "git",
     "url": "rocket-test"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.5",
